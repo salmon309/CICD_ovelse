@@ -1,0 +1,36 @@
+name: CD - CICD
+
+on: 
+  push:
+    branches: ["master"]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: "cicdovelse"
+  GITHUB_ACTOR: "salmon309"
+
+jobs:
+  Build-and-Deploy-CiCd:
+    name: Build and Deploy CiCd
+    runs-on: ubuntu-latest
+    permissions: 
+      contents: read
+      packages: write
+    
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v7
+
+      - name: Log into registry ${{env.REGISTRY}}
+        uses: docker/login-actions@v4
+        with:
+          registry: ${{env.REGISTRY}}
+          username: ${{env.GITHUB_ACTOR}}
+          password: ${{secrets.GITHUB_TOKEN}} 
+        
+      - name: Build and push Docker image  
+        uses: docker/build-push-action@v7
+        with:
+          context: src/CiCd
+          push: true
+          tags: ${{env.REGISTRY}}/${{env.GITHUB_ACTOR}}/${{env.IMAGE_NAME}}:latest
