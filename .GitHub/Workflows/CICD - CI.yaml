@@ -1,0 +1,40 @@
+name: CI - CiCd
+
+on:
+    push:
+        branches: ["master"]
+
+permissions:
+    contents: read
+
+env:
+  DOTNET_VERSION: "10.0.x"
+  SOLUTION: "CICD_Template.slnx"
+
+jobs:
+  name: Build-and-Test
+  runs-on: ubuntu-latest
+
+steps: 
+- name: Get Code
+  uses: actions/checkout@v7
+
+- name: Setup .NET
+  uses: actions/setup-dotnet@v5
+  with:
+    dotnet-version: ${{ env.DOTNET_VERSION }}
+
+- name: Restore
+    run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+- name: Build
+  run: dotnet build ${{ env.SOLUTION_PATH }}
+  --configuration Release
+  --no-restore
+
+- name: Test
+    run: dotnet test ${{ env.SOLUTION_PATH }}
+    --configuration Release
+    --no-restore
+    --no-build
+    --verbosity normal
